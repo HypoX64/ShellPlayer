@@ -1,6 +1,6 @@
 ![image](./imgs/logo_char.png)
 # ShellPlayer
-| English | [中文版](./README_CN.md) |
+| English | [中文版](./README_CN.md) |<br>
 You can play colorful & soundful video in shell !!!<br>
 You can play colorful & soundful video in shell !!!<br>
 You can play colorful & soundful video in shell !!!<br>

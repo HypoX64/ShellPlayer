@@ -1,6 +1,6 @@
 ![image](./imgs/logo_char.png)
 # ShellPlayer
-| [English](./README.md)  | 中文版 |
+| [English](./README.md)  | 中文版 |<br>
 你能在终端中看视频，色彩斑斓且富有声音的！！！<br>
 你能在终端中看视频，色彩斑斓且富有声音的！！！<br>
 你能在终端中看视频，色彩斑斓且富有声音的！！！<br>
