@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#my
+/pythontest.py
+/testmedia
+/tmp
+*.exe
