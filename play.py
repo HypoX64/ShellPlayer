@@ -1,11 +1,13 @@
 import os
 import sys
 import time
+import multiprocessing
 from multiprocessing import Process, Queue
 import threading
 import subprocess
 import numpy as np
 import cv2
+import platform
 
 from util import util,ffmpeg
 from img2shell import Transformer
@@ -30,6 +32,9 @@ def timer(opt,timerQueueime):
         timerQueueime.put(True)
 
 opt = Options().getparse()
+system_type = 'Linux'
+if 'Windows' in platform.platform():
+    system_type = 'Windows'
 
 #-------------------------------Media Init-------------------------------
 if util.is_img(opt.media):
@@ -41,7 +46,7 @@ elif util.is_video(opt.media):
         opt.frame_num = int(endtime*fps-5)
     if opt.ori_fps == 0:
         opt.ori_fps = fps
-    util.clean_tempfiles(tmp_init=True)
+    util.makedirs('./tmp')
 else:
     print('Can not load this file!')
 
@@ -68,29 +73,34 @@ if util.is_video(opt.media):
         opt.fps = np.clip(recommend_fps,1,opt.ori_fps)
     else:
         opt.fps = np.clip(opt.fps,1,opt.ori_fps)
-    ffmpeg.video2voice(opt.media,'-ar 16000 ./tmp/tmp.wav')
+    if system_type == 'Linux':
+        ffmpeg.video2voice(opt.media,'-ar 16000 ./tmp/tmp.wav')
 
 #-------------------------------main-------------------------------
-if util.is_img(opt.media):
-    print(transformer.convert(img,opt.gray))
-elif util.is_video(opt.media):
-    imgQueue = Queue(1)
-    timerQueue = Queue()
+if __name__ == '__main__':
+    if system_type == 'Windows':
+        multiprocessing.freeze_support()
+    if util.is_img(opt.media):
+        print(transformer.convert(img,opt.gray))
+    elif util.is_video(opt.media):
+        imgQueue = Queue(1)
+        timerQueue = Queue()
 
-    imgload_p = Process(target=readvideo,args=(opt,imgQueue))
-    imgload_p.daemon = True
-    imgload_p.start()
+        imgload_p = Process(target=readvideo,args=(opt,imgQueue))
+        imgload_p.daemon = True
+        imgload_p.start()
 
-    timer_p = Process(target=timer,args=(opt,timerQueue))
-    timer_p.daemon = True
-    timer_p.start()
+        timer_p = Process(target=timer,args=(opt,timerQueue))
+        timer_p.daemon = True
+        timer_p.start()
 
-    time.sleep(0.5)
-    subprocess.Popen('paplay ./tmp/tmp.wav', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        time.sleep(0.5)
+        if system_type == 'Linux':
+            subprocess.Popen('paplay ./tmp/tmp.wav', shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    for i in range(int(opt.frame_num*opt.fps/opt.ori_fps)-1):
-        timerQueue.get()
-        img = imgQueue.get()
-        string = transformer.convert(img,opt.gray)
-        t=threading.Thread(target=print,args=(string,))
-        t.start()
+        for i in range(int(opt.frame_num*opt.fps/opt.ori_fps)-1):
+            timerQueue.get()
+            img = imgQueue.get()
+            string = transformer.convert(img,opt.gray)
+            t=threading.Thread(target=print,args=(string,))
+            t.start()

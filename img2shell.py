@@ -102,7 +102,7 @@ class Transformer(object):
 
 
     def pixel_color(self,Y,dis):
-        if Y<24:
+        if Y<32:
             return ' '
 
         # color
